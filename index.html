@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Gestor de Funeraria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-emblem">⚜</div>
+    <div>
+      <h1>Funeraria</h1>
+      <p>Sistema de Gestión</p>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <span class="nav-label">Principal</span>
+    <a class="nav-item active" data-page="dashboard" onclick="navigate('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+
+    <span class="nav-label" style="margin-top:16px">Microservicios</span>
+    <a class="nav-item" data-page="difuntos" onclick="navigate('difuntos',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Difuntos
+    </a>
+    <a class="nav-item" data-page="familiares" onclick="navigate('familiares',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Familiares
+    </a>
+    <a class="nav-item" data-page="salas" onclick="navigate('salas',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Salas y Capillas
+    </a>
+    <a class="nav-item" data-page="agenda" onclick="navigate('agenda',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Agenda
+    </a>
+    <a class="nav-item" data-page="reportes" onclick="navigate('reportes',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reportes
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="mini-stats">
+      <div class="mini-stat">
+        <span id="sb-total">0</span>
+        <label>Servicios</label>
+      </div>
+      <div class="mini-stat">
+        <span id="sb-activos">0</span>
+        <label>Activos</label>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ═══════════════ DASHBOARD ═══════════════ -->
+  <section class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <h2>Dashboard</h2>
+        <p>Resumen operativo del sistema</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar CSV
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card gold">
+        <label>Total Servicios</label>
+        <div class="stat-value" id="dash-total">0</div>
+        <div class="stat-sub">Registros en el sistema</div>
+      </div>
+      <div class="stat-card blue">
+        <label>En Proceso</label>
+        <div class="stat-value" id="dash-proceso">0</div>
+        <div class="stat-sub">Casos activos</div>
+      </div>
+      <div class="stat-card red">
+        <label>Urgentes</label>
+        <div class="stat-value" id="dash-urgente">0</div>
+        <div class="stat-sub">Requieren atención inmediata</div>
+      </div>
+      <div class="stat-card green">
+        <label>Concluidos</label>
+        <div class="stat-value" id="dash-concluido">0</div>
+        <div class="stat-sub">Servicios finalizados</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Servicios Recientes</h3>
+        </div>
+        <div class="panel-body" id="dash-recientes">
+          <div class="empty">Sin registros aún</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Log de Actividad</h3>
+        </div>
+        <div class="panel-body" id="dash-log">
+          <div class="empty">Sin actividad registrada</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ DIFUNTOS ═══════════════ -->
+  <section class="page" id="page-difuntos">
+    <div class="page-header">
+      <div>
+        <h2>Difuntos</h2>
+        <p>Registro y gestión de expedientes de servicio</p>
+      </div>
+      <button class="btn btn-primary" onclick="abrirModal('modal-difunto')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Expediente
+      </button>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="search-difuntos" placeholder="Buscar por nombre, folio o servicio..." oninput="renderDifuntos()">
+      <select id="filter-estado" onchange="renderDifuntos()">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="proceso">En Proceso</option>
+        <option value="urgente">Urgente</option>
+        <option value="concluido">Concluido</option>
+      </select>
+    </div>
+
+    <div class="panel">
+      <div class="panel-body p0">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th><th>Nombre Completo</th><th>Servicio</th>
+              <th>Sala</th><th>Fecha Servicio</th><th>Estado</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-difuntos"></tbody>
+        </table>
+        <div id="empty-difuntos" class="empty" style="padding:40px">Sin expedientes registrados</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FAMILIARES ═══════════════ -->
+  <section class="page" id="page-familiares">
+    <div class="page-header">
+      <div>
+        <h2>Familiares y Contactos</h2>
+        <p>Directorio de responsables por expediente</p>
+      </div>
+      <button class="btn btn-primary" onclick="abrirModal('modal-familiar')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Familiar
+      </button>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="search-familiares" placeholder="Buscar por nombre o expediente..." oninput="renderFamiliares()">
+    </div>
+    <div class="panel">
+      <div class="panel-body p0">
+        <table>
+          <thead>
+            <tr><th>Nombre Completo</th><th>Relación</th><th>Teléfono</th><th>Email</th><th>Expediente</th><th>Principal</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tabla-familiares"></tbody>
+        </table>
+        <div id="empty-familiares" class="empty" style="padding:40px">Sin familiares registrados</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SALAS ═══════════════ -->
+  <section class="page" id="page-salas">
+    <div class="page-header">
+      <div>
+        <h2>Salas y Capillas</h2>
+        <p>Control de disponibilidad y asignación de espacios</p>
+      </div>
+      <button class="btn btn-primary" onclick="abrirModal('modal-sala')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nueva Sala
+      </button>
+    </div>
+    <div class="cards-salas" id="cards-salas">
+      <div class="empty">Sin salas registradas</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ AGENDA ═══════════════ -->
+  <section class="page" id="page-agenda">
+    <div class="page-header">
+      <div>
+        <h2>Agenda de Servicios</h2>
+        <p>Calendario de eventos y servicios programados</p>
+      </div>
+      <button class="btn btn-primary" onclick="abrirModal('modal-evento')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Evento
+      </button>
+    </div>
+    <div class="panel">
+      <div class="panel-body" id="agenda-lista">
+        <div class="empty">Sin eventos programados</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ REPORTES ═══════════════ -->
+  <section class="page" id="page-reportes">
+    <div class="page-header">
+      <div>
+        <h2>Reportes y Estadísticas</h2>
+        <p>Análisis operativo del sistema</p>
+      </div>
+      <button class="btn btn-outline" onclick="exportCSV()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Datos
+      </button>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><h3>Distribución por Estado</h3></div>
+        <div class="panel-body" id="rep-estados"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Distribución por Servicio</h3></div>
+        <div class="panel-body" id="rep-servicios"></div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><h3>Salas más Utilizadas</h3></div>
+        <div class="panel-body" id="rep-salas"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Resumen General</h3></div>
+        <div class="panel-body" id="rep-resumen"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════ MODALES ═══════════════ -->
+
+<!-- Modal Difunto -->
+<div class="modal-overlay" id="modal-difunto">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="modal-difunto-title">Nuevo Expediente</h3>
+        <p>Registro de difunto y servicio funerario</p>
+      </div>
+      <button class="modal-close" onclick="cerrarModal('modal-difunto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="d-id">
+      <div class="form-section-title">Datos del Difunto</div>
+      <div class="form-row">
+        <div class="fg"><label>Nombre(s)*</label><input id="d-nombre" placeholder="Nombre(s)"></div>
+        <div class="fg"><label>Apellidos*</label><input id="d-apellidos" placeholder="Apellidos"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Fecha de Fallecimiento</label><input type="date" id="d-fallecimiento"></div>
+        <div class="fg"><label>Causa de Fallecimiento</label><input id="d-causa" placeholder="Causa"></div>
+      </div>
+      <div class="form-section-title" style="margin-top:16px">Datos del Servicio</div>
+      <div class="form-row">
+        <div class="fg"><label>Tipo de Servicio</label>
+          <select id="d-servicio">
+            <option value="">Seleccionar...</option>
+            <option>Velación</option><option>Cremación</option>
+            <option>Traslado</option><option>Entierro</option><option>Repatriación</option>
+          </select>
+        </div>
+        <div class="fg"><label>Estado</label>
+          <select id="d-estado">
+            <option value="pendiente">Pendiente</option>
+            <option value="proceso">En Proceso</option>
+            <option value="urgente">Urgente</option>
+            <option value="concluido">Concluido</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Sala Asignada</label>
+          <select id="d-sala">
+            <option value="">Sin asignar</option>
+          </select>
+        </div>
+        <div class="fg"><label>Fecha y Hora del Servicio</label><input type="datetime-local" id="d-fecha-servicio"></div>
+      </div>
+      <div class="fg"><label>Observaciones</label><textarea id="d-obs" rows="3" placeholder="Notas adicionales..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-difunto')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarDifunto()">Guardar Expediente</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Familiar -->
+<div class="modal-overlay" id="modal-familiar">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>Registrar Familiar</h3><p>Contacto responsable del expediente</p></div>
+      <button class="modal-close" onclick="cerrarModal('modal-familiar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="f-id">
+      <div class="form-row">
+        <div class="fg"><label>Nombre Completo*</label><input id="f-nombre" placeholder="Nombre y apellidos"></div>
+        <div class="fg"><label>Relación con el Difunto</label>
+          <select id="f-relacion">
+            <option>Cónyuge</option><option>Hijo/a</option><option>Hermano/a</option>
+            <option>Padre / Madre</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Teléfono Principal</label><input id="f-tel" placeholder="10 dígitos"></div>
+        <div class="fg"><label>Teléfono Alternativo</label><input id="f-tel2" placeholder="Opcional"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Correo Electrónico</label><input id="f-email" placeholder="correo@ejemplo.com"></div>
+        <div class="fg"><label>Expediente Asociado</label>
+          <select id="f-expediente"><option value="">Sin expediente</option></select>
+        </div>
+      </div>
+      <div class="fg"><label>Domicilio</label><input id="f-domicilio" placeholder="Dirección completa"></div>
+      <div class="fg" style="margin-top:10px;display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="f-principal" style="width:auto">
+        <label for="f-principal" style="text-transform:none;font-size:13px;color:var(--text2)">Es el responsable principal del expediente</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-familiar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarFamiliar()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Sala -->
+<div class="modal-overlay" id="modal-sala">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3 id="modal-sala-title">Nueva Sala / Capilla</h3><p>Registro de espacio funerario</p></div>
+      <button class="modal-close" onclick="cerrarModal('modal-sala')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="s-id">
+      <div class="form-row">
+        <div class="fg"><label>Nombre / Número*</label><input id="s-nombre" placeholder="Ej: Capilla A, Sala 3"></div>
+        <div class="fg"><label>Capacidad Máxima</label><input type="number" id="s-cap" placeholder="Personas" min="1"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Estado</label>
+          <select id="s-estado">
+            <option value="disponible">Disponible</option>
+            <option value="ocupada">Ocupada</option>
+            <option value="mantenimiento">En Mantenimiento</option>
+          </select>
+        </div>
+        <div class="fg"><label>Expediente Asignado</label>
+          <select id="s-expediente"><option value="">Sin asignar</option></select>
+        </div>
+      </div>
+      <div class="fg"><label>Equipamiento</label><textarea id="s-equip" rows="2" placeholder="Proyector, audio, flores, etc."></textarea></div>
+      <div class="form-row">
+        <div class="fg"><label>Inicio Ocupación</label><input type="datetime-local" id="s-inicio"></div>
+        <div class="fg"><label>Fin Ocupación</label><input type="datetime-local" id="s-fin"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-sala')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarSala()">Guardar Sala</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Evento Agenda -->
+<div class="modal-overlay" id="modal-evento">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>Nuevo Evento</h3><p>Programar servicio en la agenda</p></div>
+      <button class="modal-close" onclick="cerrarModal('modal-evento')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="e-id">
+      <div class="fg"><label>Título del Evento*</label><input id="e-titulo" placeholder="Descripción breve"></div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="fg"><label>Tipo de Evento</label>
+          <select id="e-tipo">
+            <option>Velación</option><option>Misa</option><option>Traslado</option>
+            <option>Cremación</option><option>Entierro</option>
+          </select>
+        </div>
+        <div class="fg"><label>Expediente</label>
+          <select id="e-expediente"><option value="">Sin expediente</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Inicio</label><input type="datetime-local" id="e-inicio"></div>
+        <div class="fg"><label>Fin</label><input type="datetime-local" id="e-fin"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Sala / Lugar</label><input id="e-lugar" placeholder="Sala interna o lugar externo"></div>
+        <div class="fg"><label>Estado</label>
+          <select id="e-estado">
+            <option value="programado">Programado</option>
+            <option value="en-curso">En Curso</option>
+            <option value="finalizado">Finalizado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Personal Asignado</label><input id="e-personal" placeholder="Nombres separados por coma"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-evento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarEvento()">Guardar Evento</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle Difunto -->
+<div class="modal-overlay" id="modal-detalle">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div><h3 id="det-titulo">Detalle del Expediente</h3><p id="det-folio"></p></div>
+      <button class="modal-close" onclick="cerrarModal('modal-detalle')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-detalle-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-detalle')">Cerrar</button>
+      <button class="btn btn-primary" id="det-editar">Editar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+<script src="js/difuntos.js"></script>
+<script src="js/familiares.js"></script>
+<script src="js/salas.js"></script>
+<script src="js/agenda.js"></script>
+<script src="js/reportes.js"></script>
+<script src="js/init.js"></script>
+</body>
+</html>
