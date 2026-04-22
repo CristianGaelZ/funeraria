@@ -17,7 +17,10 @@ function navigate(page, el) {
     familiares: () => { renderFamiliares(); },
     salas:      () => { renderSalas(); },
     agenda:     () => { renderAgenda(); },
+<<<<<<< HEAD
     portal:     () => { renderPortal(); renderPortalStats(); },
+=======
+>>>>>>> a0abcfe76f6be6b7ee2ed14498ba989b02af94b0
     reportes:   () => { renderReportes(); }
   };
   if (renders[page]) renders[page]();

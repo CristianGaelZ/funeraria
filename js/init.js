@@ -83,5 +83,8 @@ function cargarDatosDemostracion() {
 // ─── INIT ───
 cargarDatosDemostracion();
 renderDashboard();
+<<<<<<< HEAD
 // Actualizar badge portal al cargar
 setTimeout(() => { if (typeof actualizarBadgePortal === 'function') actualizarBadgePortal(); }, 100);
+=======
+>>>>>>> a0abcfe76f6be6b7ee2ed14498ba989b02af94b0
