@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Gestor de Funeraria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ═══ LOGIN OVERLAY ═══ */
+    #login-overlay {
+      position: fixed; inset: 0; background: #0c0c10;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; transition: opacity .4s ease;
+    }
+    #login-overlay.hidden { opacity: 0; pointer-events: none; }
+    .login-bg-pattern {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 60px, rgba(200,169,110,.03) 60px, rgba(200,169,110,.03) 120px);
+      pointer-events: none;
+    }
+    .login-card {
+      background: #141418; border: 1px solid #2a2a36; border-radius: 4px;
+      width: 100%; max-width: 440px; margin: 1rem; position: relative; z-index: 1;
+      animation: loginFadeIn .5s ease both;
+    }
+    @keyframes loginFadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .login-header { background: #0c0c10; border-bottom: 2px solid #8b6530; padding: 2rem 2rem 1.6rem; text-align: center; }
+    .login-ornament { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 1.1rem; }
+    .login-ornament-line { height: 1px; width: 44px; background: #8b6530; opacity: .6; }
+    .login-emblem { font-size: 22px; color: #c8a96e; line-height: 1; }
+    .login-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #e2c99a; letter-spacing: .1em; margin-bottom: 4px; }
+    .login-header p { font-family: 'DM Sans', sans-serif; font-size: 10px; color: #8b6530; letter-spacing: .18em; text-transform: uppercase; }
+    .login-body { padding: 1.8rem 2rem; }
+    .login-error { background: rgba(196,68,85,.1); border: 1px solid rgba(196,68,85,.3); border-radius: 3px; padding: 10px 14px; font-size: 12px; color: #e27080; margin-bottom: 1rem; display: none; font-family: 'DM Sans', sans-serif; }
+    .login-error.show { display: block; }
+    .login-fg { margin-bottom: 1.1rem; }
+    .login-fg label { display: block; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 400; letter-spacing: .14em; text-transform: uppercase; color: #9a9890; margin-bottom: 6px; }
+    .login-fg input, .login-fg select { width: 100%; height: 42px; background: #0c0c10; border: 1px solid #2a2a36; border-radius: 3px; padding: 0 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300; color: #e8e6e0; outline: none; transition: border-color .2s; box-sizing: border-box; }
+    .login-fg input:focus, .login-fg select:focus { border-color: #c8a96e; }
+    .login-fg input::placeholder { color: #3a3a48; }
+    .login-fg select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b6530'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; cursor: pointer; }
+    .login-fg select option { background: #141418; }
+    .login-divider { display: flex; align-items: center; gap: 10px; margin: 1.2rem 0; }
+    .login-divider-line { flex: 1; height: 1px; background: #2a2a36; }
+    .login-divider span { font-family: 'DM Sans', sans-serif; font-size: 10px; color: #5e5c58; letter-spacing: .12em; text-transform: uppercase; }
+    .login-forgot { text-align: right; margin-top: -6px; margin-bottom: 1.4rem; }
+    .login-forgot a { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #8b6530; text-decoration: none; }
+    .login-btn { width: 100%; height: 44px; background: #8b6530; border: none; border-radius: 3px; color: #e8e6e0; font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 600; letter-spacing: .18em; cursor: pointer; transition: background .2s; }
+    .login-btn:hover { background: #c8a96e; color: #0c0c10; }
+    .login-footer { border-top: 1px solid #2a2a36; padding: .9rem 2rem; text-align: center; }
+    .login-footer p { font-family: 'DM Sans', sans-serif; font-size: 10px; color: #5e5c58; letter-spacing: .06em; }
+    .login-public-link { margin-top: 14px; text-align: center; }
+    .login-public-link a { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #c8a96e; text-decoration: none; cursor: pointer; }
+    .login-public-link a:hover { text-decoration: underline; }
+
+    /* ─── SIDEBAR USER ─── */
+    .sidebar-user { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .sidebar-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold3); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--gold2); flex-shrink: 0; font-family: var(--font-d); }
+    .sidebar-user-info { flex: 1; min-width: 0; }
+    .sidebar-user-name { font-size: 12px; font-weight: 400; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-user-role { font-size: 10px; color: var(--gold3); letter-spacing: .08em; text-transform: uppercase; margin-top: 1px; }
+    .btn-logout { background: none; border: none; cursor: pointer; color: var(--text3); padding: 4px; border-radius: 3px; transition: color .2s; }
+    .btn-logout:hover { color: var(--red); }
+    .btn-logout svg { display: block; }
+    .nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 9px; background: #c44455; color: #fff; font-size: 10px; font-weight: 500; padding: 0 4px; margin-left: auto; }
+
+    /* ─── PORTAL PÚBLICO OVERLAY ─── */
+    #public-portal-overlay {
+      position: fixed; inset: 0; background: rgba(12,12,16,.92);
+      display: none; align-items: center; justify-content: center;
+      z-index: 8888; transition: opacity .4s ease; overflow-y: auto;
+      padding: 20px;
+    }
+    #public-portal-overlay.hidden { opacity: 0; pointer-events: none; }
+    .pp-card {
+      background: #141418; border: 1px solid #2a2a36; border-radius: 6px;
+      width: 100%; max-width: 600px; margin: auto; position: relative;
+      animation: loginFadeIn .4s ease both;
+    }
+    .pp-header { background: #0c0c10; border-bottom: 2px solid #8b6530; padding: 1.6rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .pp-header-text h2 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #e2c99a; margin: 0 0 2px; }
+    .pp-header-text p { font-size: 10px; color: #8b6530; letter-spacing: .16em; text-transform: uppercase; font-family: 'DM Sans', sans-serif; margin: 0; }
+    .pp-close { background: none; border: none; color: #5e5c58; cursor: pointer; font-size: 18px; transition: color .2s; padding: 4px; }
+    .pp-close:hover { color: #e8e6e0; }
+
+    /* Stepper */
+    .pp-stepper { display: flex; align-items: center; justify-content: center; gap: 0; padding: 1.2rem 2rem; border-bottom: 1px solid #1e1e28; }
+    .pp-stepper-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #2a2a36; display: flex; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; font-size: 11px; color: #5e5c58; background: #0c0c10; transition: all .3s; flex-shrink: 0; }
+    .pp-stepper-dot.active { border-color: #c8a96e; color: #c8a96e; }
+    .pp-stepper-dot.done { border-color: #8b6530; background: #8b6530; color: #fff; }
+    .pp-stepper-line { flex: 1; height: 1px; background: #2a2a36; max-width: 80px; }
+    .pp-stepper-label { font-family: 'DM Sans', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: .12em; color: #5e5c58; text-align: center; margin-top: 4px; }
+    .pp-step-group { display: flex; flex-direction: column; align-items: center; }
+
+    /* Steps */
+    .portal-step { display: none; padding: 1.6rem 2rem; }
+    .portal-step.active { display: block; }
+    .pp-step-title { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: #c8a96e; margin: 0 0 1.2rem; font-weight: 600; }
+    .pp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .pp-fg { margin-bottom: 12px; }
+    .pp-fg label { display: block; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 400; letter-spacing: .14em; text-transform: uppercase; color: #9a9890; margin-bottom: 5px; }
+    .pp-fg input, .pp-fg select, .pp-fg textarea { width: 100%; background: #0c0c10; border: 1px solid #2a2a36; border-radius: 3px; padding: 10px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300; color: #e8e6e0; outline: none; transition: border-color .2s; box-sizing: border-box; }
+    .pp-fg input:focus, .pp-fg select:focus, .pp-fg textarea:focus { border-color: #c8a96e; }
+    .pp-fg input::placeholder, .pp-fg textarea::placeholder { color: #3a3a48; }
+    .pp-fg select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b6530'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; cursor: pointer; }
+    .pp-error { background: rgba(196,68,85,.1); border: 1px solid rgba(196,68,85,.3); border-radius: 3px; padding: 10px 14px; font-size: 12px; color: #e27080; margin-bottom: 12px; display: none; font-family: 'DM Sans', sans-serif; }
+
+    /* Extras checkboxes */
+    .pp-extras-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pp-extra-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #0c0c10; border: 1px solid #1e1e28; border-radius: 3px; cursor: pointer; transition: border-color .2s; }
+    .pp-extra-item:hover { border-color: #2a2a36; }
+    .pp-extra-item input { width: auto; accent-color: #c8a96e; margin: 0; }
+    .pp-extra-item span { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #b8b6b0; }
+
+    /* Tipo velación visual selector */
+    .velacion-types { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+    .vel-type { padding: 14px 10px; border: 1px solid #2a2a36; border-radius: 4px; text-align: center; cursor: pointer; transition: all .2s; background: #0c0c10; }
+    .vel-type:hover { border-color: #8b6530; }
+    .vel-type.selected { border-color: #c8a96e; background: rgba(200,169,110,.06); }
+    .vel-type .vel-icon { font-size: 22px; margin-bottom: 6px; }
+    .vel-type .vel-name { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #b8b6b0; letter-spacing: .06em; }
+    .vel-type.selected .vel-name { color: #c8a96e; }
+
+    /* Footer buttons */
+    .pp-footer { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem 1.4rem; border-top: 1px solid #1e1e28; }
+    .pp-btn { height: 40px; padding: 0 20px; border-radius: 3px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 6px; border: none; }
+    .pp-btn-outline { background: transparent; border: 1px solid #2a2a36; color: #b8b6b0; }
+    .pp-btn-outline:hover { border-color: #8b6530; color: #e8e6e0; }
+    .pp-btn-primary { background: #8b6530; color: #e8e6e0; }
+    .pp-btn-primary:hover { background: #c8a96e; color: #0c0c10; }
+
+    /* Confirmación */
+    #pp-confirmacion { display: none; padding: 3rem 2rem; text-align: center; }
+    .pp-confirm-icon { font-size: 48px; margin-bottom: 1rem; }
+    .pp-confirm-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #c8a96e; margin-bottom: 8px; }
+    .pp-confirm-sub { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #9a9890; line-height: 1.6; }
+    .pp-confirm-folio { font-family: 'DM Mono', monospace; font-size: 18px; color: #e8e6e0; background: #0c0c10; border: 1px solid #2a2a36; border-radius: 3px; padding: 8px 20px; margin: 1rem auto; display: inline-block; letter-spacing: .1em; }
+
+    /* ─── LOGIN PÚBLICO (popup dentro del overlay) ─── */
+    #login-publico-overlay { position: fixed; inset: 0; background: rgba(12,12,16,.92); display: none; align-items: center; justify-content: center; z-index: 9000; padding: 20px; }
+    #login-publico-overlay.hidden { opacity: 0; pointer-events: none; }
+    .lp-card { background: #141418; border: 1px solid #2a2a36; border-radius: 6px; width: 100%; max-width: 400px; }
+    .lp-header { background: #0c0c10; border-bottom: 2px solid #8b6530; padding: 1.4rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .lp-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: #e2c99a; margin: 0; }
+    .lp-body { padding: 1.6rem 2rem; }
+    .lp-privado-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .mi-solicitud-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #1e1e28; }
+    .mi-solicitud-item:last-child { border-bottom: none; }
+    .mi-sol-nombre { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #e8e6e0; font-weight: 500; }
+    .mi-sol-meta { font-size: 11px; color: #9a9890; margin-top: 2px; }
+    .mi-sol-folio { font-family: 'DM Mono', monospace; font-size: 10px; color: #5e5c58; margin-top: 2px; }
+
+    /* ─── PORTAL ADMIN SECTION ─── */
+    .portal-card { background: #0f0f14; border: 1px solid #1e1e28; border-radius: 4px; margin-bottom: 12px; overflow: hidden; transition: border-color .2s; }
+    .portal-card-new { border-color: rgba(200,169,110,.3); }
+    .portal-card-head { display: flex; align-items: flex-start; justify-content: space-between; padding: 14px 16px; gap: 12px; background: #141418; border-bottom: 1px solid #1e1e28; }
+    .portal-card-name { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: #e2c99a; margin-bottom: 3px; }
+    .portal-card-meta { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #9a9890; }
+    .portal-card-body { padding: 14px 16px; }
+    .portal-info-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 10px; }
+    .portal-info-grid > div { display: flex; flex-direction: column; gap: 2px; }
+    .portal-info-grid span { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #5e5c58; font-family: 'DM Sans', sans-serif; }
+    .portal-info-grid strong { font-size: 12px; color: #c8b89e; font-family: 'DM Sans', sans-serif; font-weight: 400; }
+    .portal-notas { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #9a9890; font-style: italic; border-left: 2px solid #2a2a36; padding-left: 10px; margin-top: 8px; }
+    .portal-extras { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .portal-extras span:first-child { font-size: 10px; color: #5e5c58; font-family: 'DM Sans', sans-serif; }
+    .badge-extra { background: rgba(139,101,48,.2); border: 1px solid rgba(139,101,48,.4); color: #c8a96e; font-size: 10px; padding: 2px 8px; border-radius: 3px; font-family: 'DM Sans', sans-serif; }
+    .portal-stats-row { display: flex; gap: 12px; margin-bottom: 16px; }
+    .portal-stat-chip { background: #0c0c10; border: 1px solid #1e1e28; border-radius: 4px; padding: 10px 16px; flex: 1; text-align: center; }
+    .portal-stat-chip .psc-val { font-family: 'Cormorant Garamond', serif; font-size: 26px; color: #c8a96e; line-height: 1; }
+    .portal-stat-chip .psc-label { font-family: 'DM Sans', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: .12em; color: #5e5c58; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ADMIN ═══════════════ -->
+<div id="login-overlay">
+  <div class="login-bg-pattern"></div>
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-ornament">
+        <div class="login-ornament-line"></div>
+        <span class="login-emblem">⚜</span>
+        <div class="login-ornament-line"></div>
+      </div>
+      <h1>ACCESO AL SISTEMA</h1>
+      <p>Portal Administrativo · Funeraria</p>
+    </div>
+    <div class="login-body">
+      <div class="login-error" id="login-error">Usuario o contraseña incorrectos. Intente de nuevo.</div>
+      <div class="login-fg">
+        <label>Usuario</label>
+        <input type="text" id="li-user" placeholder="Ingrese su usuario" autocomplete="username">
+      </div>
+      <div class="login-fg">
+        <label>Contraseña</label>
+        <input type="password" id="li-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div class="login-forgot"><a href="#">¿Olvidó su contraseña?</a></div>
+      <div class="login-divider">
+        <div class="login-divider-line"></div>
+        <span>Área de acceso</span>
+        <div class="login-divider-line"></div>
+      </div>
+      <div class="login-fg">
+        <label>Perfil de usuario</label>
+        <select id="li-rol">
+          <option value="">— Seleccionar área —</option>
+          <option value="Administración General">Administración General</option>
+          <option value="Atención a Familias">Atención a Familias</option>
+          <option value="Operaciones">Operaciones</option>
+          <option value="Contabilidad">Contabilidad</option>
+          <option value="Logística y Traslados">Logística y Traslados</option>
+        </select>
+      </div>
+      <button class="login-btn" id="login-btn">INICIAR SESIÓN</button>
+      <div class="login-public-link">
+        <a onclick="mostrarPortalPublico()">¿Es familiar? Agende un servicio aquí →</a>
+      </div>
+    </div>
+    <div class="login-footer">
+      <p>Acceso restringido · Solo personal autorizado</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PORTAL PÚBLICO WIZARD ═══════════════ -->
+<div id="public-portal-overlay">
+  <div class="pp-card">
+    <div class="pp-header">
+      <div class="pp-header-text">
+        <h2>Portal de Familias</h2>
+        <p>Registro y agendamiento de servicios</p>
+      </div>
+      <button class="pp-close" onclick="cerrarPortalPublico()">✕</button>
+    </div>
+
+    <div id="pp-form-content">
+      <!-- Stepper -->
+      <div class="pp-stepper">
+        <div class="pp-step-group">
+          <div class="pp-stepper-dot active" id="dot1">1</div>
+          <div class="pp-stepper-label">Sus datos</div>
+        </div>
+        <div class="pp-stepper-line"></div>
+        <div class="pp-step-group">
+          <div class="pp-stepper-dot" id="dot2">2</div>
+          <div class="pp-stepper-label">Difunto</div>
+        </div>
+        <div class="pp-stepper-line"></div>
+        <div class="pp-step-group">
+          <div class="pp-stepper-dot" id="dot3">3</div>
+          <div class="pp-stepper-label">Servicio</div>
+        </div>
+      </div>
+
+      <div id="pp-error" class="pp-error" style="margin: 0 2rem;"></div>
+
+      <!-- Paso 1: Datos del solicitante -->
+      <div class="portal-step active" id="step1">
+        <div class="pp-step-title">Cree su cuenta de familiar</div>
+        <div class="pp-row">
+          <div class="pp-fg">
+            <label>Nombre completo *</label>
+            <input id="pp-sol-nombre" placeholder="Su nombre completo">
+          </div>
+          <div class="pp-fg">
+            <label>Relación con el difunto</label>
+            <select id="pp-sol-relacion">
+              <option>Cónyuge</option>
+              <option>Hijo/a</option>
+              <option>Hermano/a</option>
+              <option>Padre / Madre</option>
+              <option>Otro familiar</option>
+            </select>
+          </div>
+        </div>
+        <div class="pp-row">
+          <div class="pp-fg">
+            <label>Teléfono de contacto *</label>
+            <input id="pp-sol-tel" placeholder="10 dígitos" type="tel">
+          </div>
+          <div class="pp-fg">
+            <label>Correo electrónico</label>
+            <input id="pp-sol-email" placeholder="opcional" type="email">
+          </div>
+        </div>
+        <div class="login-divider" style="margin: 4px 0 16px;">
+          <div class="login-divider-line"></div>
+          <span style="font-family:'DM Sans',sans-serif;font-size:10px;color:#5e5c58;letter-spacing:.12em;text-transform:uppercase;">Credenciales de acceso</span>
+          <div class="login-divider-line"></div>
+        </div>
+        <div class="pp-row">
+          <div class="pp-fg">
+            <label>Nombre de usuario *</label>
+            <input id="pp-sol-usuario" placeholder="Sin espacios ni acentos">
+          </div>
+          <div class="pp-fg">
+            <label>Contraseña * (min. 6 caracteres)</label>
+            <input id="pp-sol-pass" type="password" placeholder="••••••••">
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 2: Datos del difunto -->
+      <div class="portal-step" id="step2">
+        <div class="pp-step-title">Datos del difunto</div>
+        <div class="pp-fg">
+          <label>Nombre completo del difunto *</label>
+          <input id="pp-difunto-nombre" placeholder="Nombre completo">
+        </div>
+        <div class="pp-row">
+          <div class="pp-fg">
+            <label>Fecha de fallecimiento</label>
+            <input id="pp-difunto-fecha" type="date">
+          </div>
+          <div class="pp-fg">
+            <label>Tipo de servicio *</label>
+            <select id="pp-tipo-servicio">
+              <option value="">— Seleccionar —</option>
+              <option>Velación</option>
+              <option>Cremación</option>
+              <option>Entierro</option>
+              <option>Traslado</option>
+              <option>Repatriación</option>
+              <option>Misa de cuerpo presente</option>
+            </select>
+          </div>
+        </div>
+        <div class="pp-fg">
+          <label>Causa de fallecimiento (opcional)</label>
+          <input id="pp-difunto-causa" placeholder="Causa, si desea indicarla">
+        </div>
+      </div>
+
+      <!-- Paso 3: Servicio y velación -->
+      <div class="portal-step" id="step3">
+        <div class="pp-step-title">Configure su servicio</div>
+        <div class="pp-fg">
+          <label>Tipo de velación</label>
+          <div class="velacion-types">
+            <div class="vel-type selected" onclick="selVelacion(this,'Velación Tradicional')">
+              <div class="vel-icon">🕯️</div>
+              <div class="vel-name">Tradicional</div>
+            </div>
+            <div class="vel-type" onclick="selVelacion(this,'Velación Religiosa')">
+              <div class="vel-icon">✝️</div>
+              <div class="vel-name">Religiosa</div>
+            </div>
+            <div class="vel-type" onclick="selVelacion(this,'Velación Laica')">
+              <div class="vel-icon">🌿</div>
+              <div class="vel-name">Laica</div>
+            </div>
+            <div class="vel-type" onclick="selVelacion(this,'Velación Privada')">
+              <div class="vel-icon">🏠</div>
+              <div class="vel-name">Privada</div>
+            </div>
+            <div class="vel-type" onclick="selVelacion(this,'Vigilia Nocturna')">
+              <div class="vel-icon">🌙</div>
+              <div class="vel-name">Vigilia Nocturna</div>
+            </div>
+            <div class="vel-type" onclick="selVelacion(this,'Servicio Exprés')">
+              <div class="vel-icon">⚡</div>
+              <div class="vel-name">Exprés</div>
+            </div>
+          </div>
+          <input type="hidden" id="pp-tipo-velacion" value="Velación Tradicional">
+        </div>
+        <div class="pp-row">
+          <div class="pp-fg">
+            <label>Fecha y hora deseada</label>
+            <input id="pp-fecha-servicio" type="datetime-local">
+          </div>
+          <div class="pp-fg">
+            <label>Duración estimada</label>
+            <select id="pp-duracion">
+              <option value="4">4 horas</option>
+              <option value="6">6 horas</option>
+              <option value="8">8 horas (jornada completa)</option>
+              <option value="12">12 horas</option>
+              <option value="24">24 horas</option>
+              <option value="48">48 horas</option>
+            </select>
+          </div>
+        </div>
+        <div class="pp-fg">
+          <label>Sala preferida (sujeto a disponibilidad)</label>
+          <select id="pp-sala">
+            <option value="">Sin preferencia</option>
+          </select>
+        </div>
+        <div class="pp-fg">
+          <label>Servicios adicionales</label>
+          <div class="pp-extras-grid">
+            <label class="pp-extra-item"><input type="checkbox" class="pp-extra" value="Arreglo floral"><span>💐 Arreglo floral</span></label>
+            <label class="pp-extra-item"><input type="checkbox" class="pp-extra" value="Música en vivo"><span>🎵 Música en vivo</span></label>
+            <label class="pp-extra-item"><input type="checkbox" class="pp-extra" value="Transmisión en línea"><span>📡 Transmisión en línea</span></label>
+            <label class="pp-extra-item"><input type="checkbox" class="pp-extra" value="Servicio de café"><span>☕ Servicio de café</span></label>
+            <label class="pp-extra-item"><input type="checkbox" class="pp-extra" value="Fotografía"><span>📷 Fotografía</span></label>
+            <label class="pp-extra-item"><input type="checkbox" class="pp-extra" value="Libro de condolencias"><span>📖 Libro de condolencias</span></label>
+          </div>
+        </div>
+        <div class="pp-fg">
+          <label>Notas adicionales para el equipo</label>
+          <textarea id="pp-notas" rows="2" placeholder="Peticiones especiales, información relevante..."></textarea>
+        </div>
+      </div>
+
+      <div class="pp-footer">
+        <button class="pp-btn pp-btn-outline" id="pp-prev" onclick="portalPrevStep()" style="visibility:hidden">
+          ← Anterior
+        </button>
+        <div style="display:flex;gap:8px">
+          <button class="pp-btn pp-btn-outline" onclick="cerrarPortalPublico()">Cancelar</button>
+          <button class="pp-btn pp-btn-primary" id="pp-next" onclick="portalNextStep()">
+            Siguiente →
+          </button>
+          <button class="pp-btn pp-btn-primary" id="pp-submit" style="display:none" onclick="enviarSolicitudPublica()">
+            ✓ Enviar solicitud
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmación -->
+    <div id="pp-confirmacion">
+      <div class="pp-confirm-icon">✉️</div>
+      <div class="pp-confirm-title">¡Solicitud enviada!</div>
+      <div class="pp-confirm-sub">
+        Hola, <strong id="pp-nombre-confirm"></strong>. Su solicitud fue recibida y será revisada por nuestro equipo.
+        <br>Su número de folio es:
+      </div>
+      <div class="pp-confirm-folio" id="pp-folio-confirm">SOL-2025-0001</div>
+      <div class="pp-confirm-sub" style="margin-top:8px">
+        Nos pondremos en contacto con usted para confirmar los detalles del servicio.
+      </div>
+      <div style="margin-top:1.6rem;display:flex;gap:10px;justify-content:center">
+        <button class="pp-btn pp-btn-outline" onclick="mostrarLoginPublico()">Ver mis solicitudes</button>
+        <button class="pp-btn pp-btn-primary" onclick="cerrarPortalYReset()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LOGIN PÚBLICO ═══════════════ -->
+<div id="login-publico-overlay">
+  <div class="lp-card">
+    <div class="lp-header">
+      <h3>⚜ Portal de Familias</h3>
+      <button class="pp-close" onclick="cerrarLoginPublico()">✕</button>
+    </div>
+    <div class="lp-body">
+      <!-- Form login -->
+      <div id="lp-login-form">
+        <div id="lp-error" style="background:rgba(196,68,85,.1);border:1px solid rgba(196,68,85,.3);border-radius:3px;padding:10px 14px;font-size:12px;color:#e27080;margin-bottom:12px;display:none;font-family:'DM Sans',sans-serif;"></div>
+        <div class="pp-fg" style="margin-bottom:12px">
+          <label>Tu nombre de usuario</label>
+          <input id="lp-usuario" placeholder="Tu usuario registrado">
+        </div>
+        <div class="pp-fg" style="margin-bottom:16px">
+          <label>Contraseña</label>
+          <input id="lp-pass" type="password" placeholder="••••••••">
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="pp-btn pp-btn-outline" style="flex:1" onclick="cerrarLoginPublico()">Cancelar</button>
+          <button class="pp-btn pp-btn-primary" style="flex:1" onclick="loginPublico()">Ingresar</button>
+        </div>
+        <div style="margin-top:12px;text-align:center">
+          <a style="font-family:'DM Sans',sans-serif;font-size:11px;color:#8b6530;cursor:pointer;text-decoration:none" onclick="cerrarLoginPublico();mostrarPortalPublico()">
+            ¿No tienes cuenta? Regístrate aquí →
+          </a>
+        </div>
+      </div>
+      <!-- Vista privada mis solicitudes -->
+      <div id="lp-privado" style="display:none">
+        <div class="lp-privado-header">
+          <div id="lp-bienvenida" style="font-family:'DM Sans',sans-serif;font-size:13px;color:#c8a96e;font-weight:500"></div>
+          <button class="pp-btn pp-btn-outline" style="height:32px;padding:0 12px;font-size:11px" onclick="cerrarLoginPublico()">Cerrar</button>
+        </div>
+        <div id="lp-mis-solicitudes"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-emblem">⚜</div>
+    <div>
+      <h1>Funeraria</h1>
+      <p>Sistema de Gestión</p>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <span class="nav-label">Principal</span>
+    <a class="nav-item active" data-page="dashboard" onclick="navigate('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+
+    <span class="nav-label" style="margin-top:16px">Microservicios</span>
+    <a class="nav-item" data-page="difuntos" onclick="navigate('difuntos',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Difuntos
+    </a>
+    <a class="nav-item" data-page="familiares" onclick="navigate('familiares',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Familiares
+    </a>
+    <a class="nav-item" data-page="salas" onclick="navigate('salas',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Salas y Capillas
+    </a>
+    <a class="nav-item" data-page="agenda" onclick="navigate('agenda',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Agenda
+    </a>
+    <a class="nav-item" data-page="portal" onclick="navigate('portal',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+      Portal Familias
+      <span class="nav-badge" id="portal-badge" style="display:none">0</span>
+    </a>
+    <a class="nav-item" data-page="reportes" onclick="navigate('reportes',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reportes
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="mini-stats">
+      <div class="mini-stat">
+        <span id="sb-total">0</span>
+        <label>Servicios</label>
+      </div>
+      <div class="mini-stat">
+        <span id="sb-activos">0</span>
+        <label>Activos</label>
+      </div>
+    </div>
+    <div class="sidebar-user" id="sidebar-user" style="display:none">
+      <div class="sidebar-user-avatar" id="sb-avatar">--</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sb-username">Usuario</div>
+        <div class="sidebar-user-role" id="sb-userrole">Área</div>
+      </div>
+      <button class="btn-logout" title="Cerrar sesión" onclick="cerrarSesion()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ═══════════════ DASHBOARD ═══════════════ -->
+  <section class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <h2>Dashboard</h2>
+        <p>Resumen operativo del sistema</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar CSV
+        </button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card gold"><label>Total Servicios</label><div class="stat-value" id="dash-total">0</div><div class="stat-sub">Registros en el sistema</div></div>
+      <div class="stat-card blue"><label>En Proceso</label><div class="stat-value" id="dash-proceso">0</div><div class="stat-sub">Casos activos</div></div>
+      <div class="stat-card red"><label>Urgentes</label><div class="stat-value" id="dash-urgente">0</div><div class="stat-sub">Requieren atención inmediata</div></div>
+      <div class="stat-card green"><label>Concluidos</label><div class="stat-value" id="dash-concluido">0</div><div class="stat-sub">Servicios finalizados</div></div>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><h3>Servicios Recientes</h3></div>
+        <div class="panel-body" id="dash-recientes"><div class="empty">Sin registros aún</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Log de Actividad</h3></div>
+        <div class="panel-body" id="dash-log"><div class="empty">Sin actividad registrada</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ DIFUNTOS ═══════════════ -->
+  <section class="page" id="page-difuntos">
+    <div class="page-header">
+      <div><h2>Difuntos</h2><p>Registro y gestión de expedientes de servicio</p></div>
+      <button class="btn btn-primary" onclick="abrirModal('modal-difunto')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Expediente
+      </button>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="search-difuntos" placeholder="Buscar por nombre, folio o servicio..." oninput="renderDifuntos()">
+      <select id="filter-estado" onchange="renderDifuntos()">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="proceso">En Proceso</option>
+        <option value="urgente">Urgente</option>
+        <option value="concluido">Concluido</option>
+      </select>
+    </div>
+    <div class="panel">
+      <div class="panel-body p0">
+        <table>
+          <thead><tr><th>Folio</th><th>Nombre Completo</th><th>Servicio</th><th>Sala</th><th>Fecha Servicio</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody id="tabla-difuntos"></tbody>
+        </table>
+        <div id="empty-difuntos" class="empty" style="padding:40px">Sin expedientes registrados</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FAMILIARES ═══════════════ -->
+  <section class="page" id="page-familiares">
+    <div class="page-header">
+      <div><h2>Familiares y Contactos</h2><p>Directorio de responsables por expediente</p></div>
+      <button class="btn btn-primary" onclick="abrirModal('modal-familiar')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Familiar
+      </button>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="search-familiares" placeholder="Buscar por nombre o expediente..." oninput="renderFamiliares()">
+    </div>
+    <div class="panel">
+      <div class="panel-body p0">
+        <table>
+          <thead><tr><th>Nombre Completo</th><th>Relación</th><th>Teléfono</th><th>Email</th><th>Expediente</th><th>Principal</th><th>Acciones</th></tr></thead>
+          <tbody id="tabla-familiares"></tbody>
+        </table>
+        <div id="empty-familiares" class="empty" style="padding:40px">Sin familiares registrados</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SALAS ═══════════════ -->
+  <section class="page" id="page-salas">
+    <div class="page-header">
+      <div><h2>Salas y Capillas</h2><p>Control de disponibilidad y asignación de espacios</p></div>
+      <button class="btn btn-primary" onclick="abrirModal('modal-sala')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nueva Sala
+      </button>
+    </div>
+    <div class="cards-salas" id="cards-salas"><div class="empty">Sin salas registradas</div></div>
+  </section>
+
+  <!-- ═══════════════ AGENDA ═══════════════ -->
+  <section class="page" id="page-agenda">
+    <div class="page-header">
+      <div><h2>Agenda de Servicios</h2><p>Calendario de eventos y servicios programados</p></div>
+      <button class="btn btn-primary" onclick="abrirModal('modal-evento')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Evento
+      </button>
+    </div>
+    <div class="panel">
+      <div class="panel-body" id="agenda-lista"><div class="empty">Sin eventos programados</div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ PORTAL FAMILIAS (ADMIN) ═══════════════ -->
+  <section class="page" id="page-portal">
+    <div class="page-header">
+      <div>
+        <h2>Portal de Familias</h2>
+        <p>Solicitudes de servicio recibidas desde el portal público</p>
+      </div>
+      <button class="btn btn-outline" onclick="mostrarPortalPublico()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Ver portal público
+      </button>
+    </div>
+    <div class="portal-stats-row" id="portal-stats-row">
+      <div class="portal-stat-chip">
+        <div class="psc-val" id="ps-total">0</div>
+        <div class="psc-label">Total solicitudes</div>
+      </div>
+      <div class="portal-stat-chip">
+        <div class="psc-val" id="ps-pendiente" style="color:#e27080">0</div>
+        <div class="psc-label">Pendientes</div>
+      </div>
+      <div class="portal-stat-chip">
+        <div class="psc-val" id="ps-aprobada" style="color:#6ea87e">0</div>
+        <div class="psc-label">Aprobadas</div>
+      </div>
+      <div class="portal-stat-chip">
+        <div class="psc-val" id="ps-usuarios">0</div>
+        <div class="psc-label">Usuarios registrados</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Solicitudes recibidas</h3>
+        <span style="font-size:11px;color:var(--text3)">Aprueba para crear expediente y evento automáticamente</span>
+      </div>
+      <div class="panel-body" id="portal-solicitudes">
+        <div class="empty">Sin solicitudes registradas por familias</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ REPORTES ═══════════════ -->
+  <section class="page" id="page-reportes">
+    <div class="page-header">
+      <div><h2>Reportes y Estadísticas</h2><p>Análisis operativo del sistema</p></div>
+      <button class="btn btn-outline" onclick="exportCSV()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Datos
+      </button>
+    </div>
+    <div class="two-col">
+      <div class="panel"><div class="panel-head"><h3>Distribución por Estado</h3></div><div class="panel-body" id="rep-estados"></div></div>
+      <div class="panel"><div class="panel-head"><h3>Distribución por Servicio</h3></div><div class="panel-body" id="rep-servicios"></div></div>
+    </div>
+    <div class="two-col">
+      <div class="panel"><div class="panel-head"><h3>Salas más Utilizadas</h3></div><div class="panel-body" id="rep-salas"></div></div>
+      <div class="panel"><div class="panel-head"><h3>Resumen General</h3></div><div class="panel-body" id="rep-resumen"></div></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════ MODALES ═══════════════ -->
+
+<!-- Modal Difunto -->
+<div class="modal-overlay" id="modal-difunto">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3 id="modal-difunto-title">Nuevo Expediente</h3><p>Registro de difunto y servicio funerario</p></div>
+      <button class="modal-close" onclick="cerrarModal('modal-difunto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="d-id">
+      <div class="form-section-title">Datos del Difunto</div>
+      <div class="form-row">
+        <div class="fg"><label>Nombre(s)*</label><input id="d-nombre" placeholder="Nombre(s)"></div>
+        <div class="fg"><label>Apellidos*</label><input id="d-apellidos" placeholder="Apellidos"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Fecha de Fallecimiento</label><input type="date" id="d-fallecimiento"></div>
+        <div class="fg"><label>Causa de Fallecimiento</label><input id="d-causa" placeholder="Causa"></div>
+      </div>
+      <div class="form-section-title" style="margin-top:16px">Datos del Servicio</div>
+      <div class="form-row">
+        <div class="fg"><label>Tipo de Servicio</label>
+          <select id="d-servicio">
+            <option value="">Seleccionar...</option>
+            <option>Velación</option><option>Cremación</option>
+            <option>Traslado</option><option>Entierro</option><option>Repatriación</option>
+          </select>
+        </div>
+        <div class="fg"><label>Estado</label>
+          <select id="d-estado">
+            <option value="pendiente">Pendiente</option>
+            <option value="proceso">En Proceso</option>
+            <option value="urgente">Urgente</option>
+            <option value="concluido">Concluido</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Sala Asignada</label><select id="d-sala"><option value="">Sin asignar</option></select></div>
+        <div class="fg"><label>Fecha y Hora del Servicio</label><input type="datetime-local" id="d-fecha-servicio"></div>
+      </div>
+      <div class="fg"><label>Observaciones</label><textarea id="d-obs" rows="3" placeholder="Notas adicionales..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-difunto')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarDifunto()">Guardar Expediente</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Familiar -->
+<div class="modal-overlay" id="modal-familiar">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>Registrar Familiar</h3><p>Contacto responsable del expediente</p></div>
+      <button class="modal-close" onclick="cerrarModal('modal-familiar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="f-id">
+      <div class="form-row">
+        <div class="fg"><label>Nombre Completo*</label><input id="f-nombre" placeholder="Nombre y apellidos"></div>
+        <div class="fg"><label>Relación con el Difunto</label>
+          <select id="f-relacion">
+            <option>Cónyuge</option><option>Hijo/a</option><option>Hermano/a</option>
+            <option>Padre / Madre</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Teléfono Principal</label><input id="f-tel" placeholder="10 dígitos"></div>
+        <div class="fg"><label>Teléfono Alternativo</label><input id="f-tel2" placeholder="Opcional"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Correo Electrónico</label><input id="f-email" placeholder="correo@ejemplo.com"></div>
+        <div class="fg"><label>Expediente Asociado</label><select id="f-expediente"><option value="">Sin expediente</option></select></div>
+      </div>
+      <div class="fg"><label>Domicilio</label><input id="f-domicilio" placeholder="Dirección completa"></div>
+      <div class="fg" style="margin-top:10px;display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="f-principal" style="width:auto">
+        <label for="f-principal" style="text-transform:none;font-size:13px;color:var(--text2)">Es el responsable principal del expediente</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-familiar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarFamiliar()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Sala -->
+<div class="modal-overlay" id="modal-sala">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3 id="modal-sala-title">Nueva Sala / Capilla</h3><p>Registro de espacio funerario</p></div>
+      <button class="modal-close" onclick="cerrarModal('modal-sala')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="s-id">
+      <div class="form-row">
+        <div class="fg"><label>Nombre / Número*</label><input id="s-nombre" placeholder="Ej: Capilla A, Sala 3"></div>
+        <div class="fg"><label>Capacidad Máxima</label><input type="number" id="s-cap" placeholder="Personas" min="1"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Estado</label>
+          <select id="s-estado">
+            <option value="disponible">Disponible</option>
+            <option value="ocupada">Ocupada</option>
+            <option value="mantenimiento">En Mantenimiento</option>
+          </select>
+        </div>
+        <div class="fg"><label>Expediente Asignado</label><select id="s-expediente"><option value="">Sin asignar</option></select></div>
+      </div>
+      <div class="fg"><label>Equipamiento</label><textarea id="s-equip" rows="2" placeholder="Proyector, audio, flores, etc."></textarea></div>
+      <div class="form-row">
+        <div class="fg"><label>Inicio Ocupación</label><input type="datetime-local" id="s-inicio"></div>
+        <div class="fg"><label>Fin Ocupación</label><input type="datetime-local" id="s-fin"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-sala')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarSala()">Guardar Sala</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Evento Agenda -->
+<div class="modal-overlay" id="modal-evento">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>Nuevo Evento</h3><p>Programar servicio en la agenda</p></div>
+      <button class="modal-close" onclick="cerrarModal('modal-evento')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="e-id">
+      <div class="fg"><label>Título del Evento*</label><input id="e-titulo" placeholder="Descripción breve"></div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="fg"><label>Tipo de Evento</label>
+          <select id="e-tipo">
+            <option>Velación</option><option>Misa</option><option>Traslado</option>
+            <option>Cremación</option><option>Entierro</option>
+          </select>
+        </div>
+        <div class="fg"><label>Expediente</label><select id="e-expediente"><option value="">Sin expediente</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Inicio</label><input type="datetime-local" id="e-inicio"></div>
+        <div class="fg"><label>Fin</label><input type="datetime-local" id="e-fin"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Sala / Lugar</label><input id="e-lugar" placeholder="Sala interna o lugar externo"></div>
+        <div class="fg"><label>Estado</label>
+          <select id="e-estado">
+            <option value="programado">Programado</option>
+            <option value="en-curso">En Curso</option>
+            <option value="finalizado">Finalizado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Personal Asignado</label><input id="e-personal" placeholder="Nombres separados por coma"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-evento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarEvento()">Guardar Evento</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle Difunto -->
+<div class="modal-overlay" id="modal-detalle">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div><h3 id="det-titulo">Detalle del Expediente</h3><p id="det-folio"></p></div>
+      <button class="modal-close" onclick="cerrarModal('modal-detalle')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-detalle-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="cerrarModal('modal-detalle')">Cerrar</button>
+      <button class="btn btn-primary" id="det-editar">Editar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══ LOGIN ADMIN ═══ */
+const USUARIOS = [
+  { usuario: 'admin',      pass: 'admin123',   nombre: 'Administrador',   rol: 'Administración General' },
+  { usuario: 'recepcion',  pass: 'recepcion1', nombre: 'Recepcionista',   rol: 'Atención a Familias' },
+  { usuario: 'operador',   pass: 'op2024',     nombre: 'Operador',        rol: 'Operaciones' },
+  { usuario: 'contable',   pass: 'conta2024',  nombre: 'Contabilidad',    rol: 'Contabilidad' },
+  { usuario: 'logistica',  pass: 'log2024',    nombre: 'Logística',       rol: 'Logística y Traslados' },
+];
+
+let sesionActiva = null;
+
+function iniciarSesion() {
+  const user = document.getElementById('li-user').value.trim();
+  const pass = document.getElementById('li-pass').value.trim();
+  const rol  = document.getElementById('li-rol').value;
+  const err  = document.getElementById('login-error');
+  if (!user || !pass || !rol) { err.textContent = 'Por favor complete todos los campos.'; err.classList.add('show'); return; }
+  const match = USUARIOS.find(u => u.usuario === user && u.pass === pass);
+  if (!match) { err.textContent = 'Usuario o contraseña incorrectos. Intente de nuevo.'; err.classList.add('show'); document.getElementById('li-pass').value = ''; return; }
+  err.classList.remove('show');
+  sesionActiva = { ...match, rolSeleccionado: rol };
+  const initials = match.nombre.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sb-avatar').textContent = initials;
+  document.getElementById('sb-username').textContent = match.nombre;
+  document.getElementById('sb-userrole').textContent = rol;
+  document.getElementById('sidebar-user').style.display = 'flex';
+  const overlay = document.getElementById('login-overlay');
+  overlay.classList.add('hidden');
+  setTimeout(() => overlay.style.display = 'none', 400);
+  actualizarBadgePortal();
+}
+
+function cerrarSesion() {
+  sesionActiva = null;
+  document.getElementById('sidebar-user').style.display = 'none';
+  document.getElementById('li-user').value = '';
+  document.getElementById('li-pass').value = '';
+  document.getElementById('li-rol').value = '';
+  const overlay = document.getElementById('login-overlay');
+  overlay.style.display = 'flex';
+  setTimeout(() => overlay.classList.remove('hidden'), 10);
+}
+
+document.getElementById('login-btn').addEventListener('click', iniciarSesion);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-overlay').style.display !== 'none'
+    && !document.getElementById('login-overlay').classList.contains('hidden')) { iniciarSesion(); }
+});
+
+/* ═══ VELACION TYPE SELECTOR ═══ */
+function selVelacion(el, tipo) {
+  document.querySelectorAll('.vel-type').forEach(v => v.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('pp-tipo-velacion').value = tipo;
+}
+
+/* ═══ LOGIN PÚBLICO ═══ */
+function mostrarLoginPublico() {
+  cerrarPortalPublico();
+  const el = document.getElementById('login-publico-overlay');
+  el.style.display = 'flex';
+  document.getElementById('lp-login-form').style.display = 'block';
+  document.getElementById('lp-privado').style.display = 'none';
+  document.getElementById('lp-usuario').value = '';
+  document.getElementById('lp-pass').value = '';
+}
+
+function cerrarLoginPublico() {
+  document.getElementById('login-publico-overlay').style.display = 'none';
+}
+
+/* ═══ PORTAL ADMIN STATS ═══ */
+function renderPortalStats() {
+  const sols = DB.solicitudes || [];
+  document.getElementById('ps-total').textContent = sols.length;
+  document.getElementById('ps-pendiente').textContent = sols.filter(s => s.estado === 'pendiente').length;
+  document.getElementById('ps-aprobada').textContent = sols.filter(s => s.estado === 'aprobada').length;
+  const usrs = JSON.parse(localStorage.getItem('fgr_usuarios_publicos') || '[]');
+  document.getElementById('ps-usuarios').textContent = usrs.length;
+}
+</script>
+
+<script src="js/db.js"></script>
+<script src="js/portal.js"></script>
+<script src="js/app.js"></script>
+<script src="js/difuntos.js"></script>
+<script src="js/familiares.js"></script>
+<script src="js/salas.js"></script>
+<script src="js/agenda.js"></script>
+<script src="js/reportes.js"></script>
+<script src="js/init.js"></script>
+</body>
+</html>
